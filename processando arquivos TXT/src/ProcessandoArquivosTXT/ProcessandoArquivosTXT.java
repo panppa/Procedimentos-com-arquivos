@@ -10,6 +10,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -35,7 +39,7 @@ public class ProcessandoArquivosTXT {
         
         
         //menu
-        System.out.println("\n\n\n\n\n\n\n\n --------------------------------------------\n1)Buscar palavra mais comum\n2)Procurar palavra específica\n");
+        System.out.println("\n --------------------------------------------\n1)Buscar palavra mais comum\n2)Procurar palavra específica\n");
         String esc = in.nextLine();
         
         if(esc.equals("1")){
@@ -138,7 +142,10 @@ public class ProcessandoArquivosTXT {
     }
 
     private static void maiscomum(File dir,int numchar) {
+        Map<String,Integer> wordMap = new HashMap<>();
         File listFile[] = dir.listFiles();
+        Integer maisRep = 0;
+        List<String> maisRepList = new ArrayList<>();
         for (File listFile1 : listFile) {
             if (listFile1.exists() && listFile1.canRead()){
                     //if(listFile1.getName()){ -------------------------------------------- implementar no futuro (apenas TXT   
@@ -154,10 +161,30 @@ public class ProcessandoArquivosTXT {
                             //System.out.println(linha);
                             linha = bufLeitura.readLine();
                             try {
-                                String listWords[] = linha.split(" ");
-                                for(String listWords1 : listWords){
-                                    if (listWords1.length()== numchar){ 
-                                        System.out.println("Arquivo: "+listFile1.getName()+" Linha: " + numlinha);
+                                //String listWords[] = linha.split(" ");
+                                //for(String listWords1 : listWords){
+                                //    if (listWords1.length()== numchar){ 
+                                //        System.out.println(listWords1.length());
+                                //        System.out.println(listWords1);
+                                //    }
+                                //}
+                                String listWords[] = noPonctuationMarks(linha.split(" "));
+                                String contrep[][] = new String[listWords.length][2];
+                                
+                                //for (String listWords1 : listWords) {
+                                for (int cont=0; cont < listWords.length;cont++){
+                                   
+                                    if (listWords[cont].length()== numchar){
+                                        String word = listWords[cont];
+                                        if(wordMap.get(word)!=null) {
+                                            // palavra repetida:
+                                            //System.out.println("Duplicated/Repeated word:"+word);
+                                            wordMap.put(word, wordMap.get(word)+1);
+
+                                            
+                                        }else {
+                                            wordMap.put(word, 1);
+                                        }
                                     }
                                 }
                             } catch (Exception e) {
@@ -165,6 +192,8 @@ public class ProcessandoArquivosTXT {
                             }
                             
                         }
+                        //System.out.println("\n\n\n\n\n\n\n\n"+wordMap.values());
+                        
 
                     }else{
                         System.out.println("Arquivo não disponivel para leitura.");
@@ -174,8 +203,44 @@ public class ProcessandoArquivosTXT {
                 }catch(IOException ex){
                     System.out.println("Arquivo não pode ser lido ou foi corrompido");
                 }
+                
             }        
         }
+        //for(Integer value1: wordMap.values() ){
+        //    if(value1 <= maisRep){
+        //        maisRep = value1;
+        //   }
+        //}
+        for (Map.Entry<String, Integer> entry : wordMap.entrySet()){
+            if(entry.getValue() >= maisRep){
+                maisRep = entry.getValue();
+                   
+                maisRepList.add(entry.getKey());
+                //System.out.println(wordMap.get(entry.getKey()));
+            }
+        }
+        int contwhile = maisRepList.size()-1;
+        Integer Temp;
+        System.out.println(maisRepList.get((contwhile))+ " se repete "+wordMap.get(maisRepList.get(contwhile))+" Vezes"); 
+        /*do{
+        System.out.println(maisRepList.get((contwhile))+ " se repete "+wordMap.get(maisRepList.get(contwhile))+" Vezes");
+        contwhile--;
+        if (contwhile > 0){
+        Temp = contwhile-1;
+        }else{
+        Temp = null;
+        }
+        
+        }  while(Objects.equals(wordMap.get(maisRepList.get(contwhile)), wordMap.get(maisRepList.get(Temp))));                    */
     }
+
+    private static String[] noPonctuationMarks(String[] split) {
+        for(int cont=0; cont < split.length;cont++ ){
+            split[cont]= split[cont].replaceAll("[\\W]","");
+        }
+            
+        return split;
+    }
+
 }
     
